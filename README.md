@@ -49,8 +49,6 @@ The system monitors file access, USB devices, login attempts, emails, and networ
 ### ⚡ Automated Actions
 - Network blocking
 - Email blocking
-- Process termination
-- USB quarantine
 
 ### 📝 Explainable AI
 - Converts alerts into simple English explanations
@@ -138,31 +136,8 @@ Agent settings are in `FS/insepticon/file_agent.py` and `config.json` generated 
 - `enable_outlook_monitor`: Outlook monitoring switch
 - `enable_imap_monitor`: IMAP monitoring switch
 
-### Secrets
-
-Do not hardcode API keys in source files. The report generator reads the Google Gemini key from the `GEMINI_API_KEY` environment variable.
-
-PowerShell:
-
-```powershell
-$env:GEMINI_API_KEY="your-google-gemini-api-key"
-```
-
-Bash:
-
-```bash
-export GEMINI_API_KEY="your-google-gemini-api-key"
-```
-
-You can also copy `.env.example` to `.env` for local development, but never commit `.env`.
-
 ## Running Locally
 
-From the project root:
-
-```bash
-cd "DEEPSENTINEL/DEEPSENTINEL/FS (1)/FS"
-```
 
 Start the server:
 
@@ -249,114 +224,12 @@ Analytics:
 | `/api/analytics/risk-meter` | GET | Risk meter data |
 | `/api/analytics/data-transfer` | GET | USB/file/email transfer activity |
 
-## Example Event Payloads
-
-After-hours logoff:
-
-```json
-{
-  "event_type": "logon",
-  "action": "user_logoff",
-  "user": "DESKTOP\\nisha",
-  "agent_id": "DESKTOP-HOST-001",
-  "timestamp": "2026-05-03 18:20:00",
-  "hour_of_day": 18
-}
-```
-
-Large USB file transfer:
-
-```json
-{
-  "event_type": "usb",
-  "action": "large_file_transfer",
-  "drive": "E:",
-  "mountpoint": "E:\\",
-  "file_name": "backup.zip",
-  "relative_path": "backup.zip",
-  "file_size": 104857600,
-  "file_size_mb": 100.0,
-  "timestamp": "2026-05-03 18:25:00",
-  "hour_of_day": 18
-}
-```
-
-## Testing
-
-Syntax check:
-
-```bash
-python -m py_compile FS/insepticon/file_agent.py FS/insepticon/server.py
-```
-
-Manual server test:
-
-```bash
-curl -X POST http://127.0.0.1:5000/receive_log ^
-  -H "Content-Type: application/json" ^
-  -d "{\"event_type\":\"logon\",\"action\":\"user_logoff\",\"user\":\"test_user\",\"agent_id\":\"TEST-PC\",\"hour_of_day\":18,\"timestamp\":\"2026-05-03 18:10:00\"}"
-```
-
-Then check:
-
-```text
-http://127.0.0.1:5000/dashboard
-```
-
-## Runtime Data and GitHub Notes
-
-The project writes runtime data into `data/` and `FS/insepticon/data/`, including event logs, alerts, debug logs, screenshots, generated reports, encrypted local logs, and server logs.
-
-A `.gitignore` file is included to keep generated files, local secrets, logs, model artifacts, virtual environments, and runtime data out of Git.
-
-Before pushing to GitHub, do not commit:
-
-- `data/*.jsonl`
-- `data/*.log`
-- `FS/insepticon/data/*.jsonl`
-- `FS/insepticon/data/*.log`
-- `secure_local_log.bin`
-- `secure_local_log.bin.jsonl`
-- `agent_key.key`
-- `server.log`
-- `__pycache__/`
-- virtual environments such as `.venv/` and `deepenv/`
-- generated screenshots, recordings, reports, and quarantine files
-
-These files can contain local usernames, machine names, paths, screenshots, encrypted logs, or sensitive test data.
-
-If these files were already added to Git before `.gitignore` existed, remove them from Git tracking without deleting your local copies:
-
-```bash
-git rm -r --cached data FS/insepticon/data FS/insepticon/logs FS/insepticon/quarantine
-git rm --cached agent_key.key secure_local_log.bin secure_local_log.bin.jsonl server.log threat_log.txt
-git rm -r --cached FS/insepticon/models FS/insepticon/deepenv .venv
-git add .gitignore README.md
-git status
-```
-
-Only commit source code, configuration templates, documentation, and small sample files that do not contain private data.
-
-Recommended upload checklist:
-
-1. Confirm `.gitignore` is present.
-2. Run `git status` and review every staged file.
-3. Do not upload logs, screenshots, generated reports, keys, virtual environments, or trained model binaries unless you intentionally want them public.
-4. Add a `LICENSE` file before publishing.
-5. Add sanitized sample data only if needed for demonstration.
-
-If GitHub secret scanning reports a leaked key:
-
-1. Revoke or rotate the key in the provider dashboard immediately.
-2. Remove the secret from the current code.
-3. Purge the secret from Git history before pushing again, or create a fresh clean repository.
-4. Re-scan the repository for the leaked pattern.
 
 ## Security Notice
 
 DeepSentinel is a monitoring and response prototype. Use it only on systems where you have permission to monitor activity. Logon/logoff monitoring may require Administrator access because it reads Windows Security Event Logs. Some response actions, such as blocking or isolation, can affect normal user activity and should be tested in a controlled environment first.
 
-## License
+
 
 Add your preferred license before publishing, for example MIT, Apache-2.0, or a private academic-use notice.
 
