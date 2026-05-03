@@ -1,0 +1,52 @@
+{
+  "users": [
+    {
+      "email": "farheen.shkk@student.sfit.ac.in",
+      "passwordHash": "$2a$10$OWQQQoYgk7eVfJgKJBrDhu.GlmAUHuNjavaJ7bR6DPUPcBNjkZm6K",
+      "totpSecret": "NN2C4L3VKNXU2N2FKN2X2XKUNNWGSJSLGNEUOVBOHBTGG3Z3FBNA",
+      "createdAt": "2026-04-10T22:46:18.507Z"
+    },
+    {
+      "email": "google-user@deepsentinel.com",
+      "passwordHash": "$2a$10$7AxYKt8HHbL/aFBfdVkZbOdWKyUi7KRTAp0bBp6HNAHp4EK1n949K",
+      "totpSecret": "IATFQXK5IVLSSPTBMROUQWBDKR3XWNBMIASXGMKXHE2VKKDQPIRQ",
+      "createdAt": "2026-04-10T23:06:20.487Z"
+    },
+    {
+      "email": "abc@gmail.com",
+      "passwordHash": "$2a$10$HjBq/RJdvKLfPvB1FTNFyubN8WN8Zf/kAn06HaNe0hlS8Uww1GQpW",
+      "totpSecret": "NVQSYU2FFJLGGPDEJAYFOJDEIN2GC2DMHRBF46RRLJVSSLZGKYVA",
+      "createdAt": "2026-04-10T23:46:23.866Z"
+    },
+    {
+      "email": "xyz@gmail.com",
+      "passwordHash": "$2a$10$Fe0ZT4CcmcWAboZcHBLMyODolqGWiClnKjlscb3TAHihOvC4doQj.",
+      "totpSecret": "JM6H2QZ2JBBH23TGO5CTY5RQK5TSSVDZNRSUWKDUPV5W2KJFHRKQ",
+      "createdAt": "2026-04-10T23:55:00.825Z"
+    },
+    {
+      "email": "nisha.sherigar306@gmail.com",
+      "passwordHash": "$2a$10$jpMAjK7Dn72zPBOVMzNL1u8TxICiRXnF/feW.r4tl3rC2zHliJBe.",
+      "totpSecret": "JRACUOKDKZ4HMQ3IOZYGCVBQIRWUIT2CGZBCI7KOIMXDCQTVJVGQ",
+      "createdAt": "2026-04-11T02:37:37.680Z"
+    },
+    {
+      "email": "farheen.shkk@studetn.sfit.ac.in",
+      "passwordHash": "$2a$10$Pdms0NmdDnViqYcz3GeLFe/z3dF0VBSkmfrycxlDWvHj8NvJ496I2",
+      "totpSecret": "O5ZUMQJXKFBDUUKSJI4HG2JZHE4WY2J7JVYTCMRDF47GI425JZRQ",
+      "createdAt": "2026-04-11T04:28:24.547Z"
+    },
+    {
+      "email": "farheen.shkk@studetn.sfit.ac.i",
+      "passwordHash": "$2a$10$AXwWXmVBECdxkZ4m/Er.JegtnKAO8.fpIhLlq/xrHe1MMGWrJryZ2",
+      "totpSecret": "OFHDCSBFEVFEUUTXMU4TQU2BJFAWEWCMJY5HILSDHJCFI6DUI5JA",
+      "createdAt": "2026-04-11T05:52:40.946Z"
+    },
+    {
+      "email": "jominjohnson01@gmail.com",
+      "passwordHash": "$2a$10$XCI4mPzpkKUM/4JOzkqkLe/I2QdOp7uSyx1M4NnADD0l/tKztAycS",
+      "totpSecret": "KRVXMVSNHEVDM4CNOZJFQYJ6PVKSKMLUF4YDYKDFGVZDOS25JBKA",
+      "createdAt": "2026-04-27T04:37:58.500Z"
+    }
+  ]
+}

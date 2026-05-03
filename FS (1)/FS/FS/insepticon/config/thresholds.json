@@ -1,0 +1,10 @@
+{
+  "file_creation_per_day": 500,
+  "file_modifications_per_hour": 100,
+  "usb_plugs_per_day": 10,
+  "external_emails_per_day": 50,
+  "suspicious_http_hits_per_day": 100,
+  "model_risk_threshold": 0.85,
+  "combined_risk_threshold": 0.85,
+  "rule_penalty": 0.05
+}

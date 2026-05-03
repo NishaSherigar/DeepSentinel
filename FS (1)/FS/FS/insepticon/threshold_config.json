@@ -1,0 +1,34 @@
+{
+  "global": {
+    "files_created_today": 500,
+    "http_requests_today": 2000,
+    "bytes_downloaded_today": 1073741824,
+    "usb_events_today": 10,
+    "logons_today": 20
+  },
+  "user_profiles": {
+    "developer": {
+      "files_created_today": 1000,
+      "http_requests_today": 5000,
+      "usb_events_today": 20,
+      "logons_today": 30
+    },
+    "finance": {
+      "files_created_today": 100,
+      "http_requests_today": 1000,
+      "usb_events_today": 5,
+      "logons_today": 10
+    },
+    "executive": {
+      "files_created_today": 50,
+      "http_requests_today": 500,
+      "usb_events_today": 2,
+      "logons_today": 5
+    }
+  },
+  "baseline_learning": {
+    "enabled": true,
+    "learning_period_days": 14,
+    "std_deviation_multiplier": 3.5
+  }
+}

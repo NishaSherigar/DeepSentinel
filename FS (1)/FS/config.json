@@ -1,0 +1,9 @@
+{
+  "thresholds": {
+    "files_created_today": 12,
+    "http_requests_today": 500,
+    "bytes_downloaded_today": 104857600,
+    "large_usb_transfer_bytes": 52428800
+  },
+  "risk_display_threshold": 0.5
+}

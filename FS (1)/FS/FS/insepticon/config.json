@@ -1,0 +1,30 @@
+{
+  "paths": {
+    "model_dir": "models",
+    "log_file": "threat_log.txt",
+    "baseline_file": "user_baselines.json",
+    "threshold_config": "threshold_config.json"
+  },
+  "thresholds": {
+    "files_created_today": 12,
+    "http_requests_today": 500,
+    "bytes_downloaded_today": 104857600,
+    "large_usb_transfer_bytes": 52428800
+  },
+  "risk_display_threshold": 0.51,
+  "enable_outlook_monitor": false,
+  "enable_process_monitor": false,
+  "_description": {
+    "paths": {
+      "model_dir": "Directory containing ML model files (relative to project or absolute path). Default: 'models' - can be external path like 'C:\\Users\\...\\models'",
+      "log_file": "Path to threat detection log file (relative to project dir)",
+      "baseline_file": "Path to user baseline statistics file (relative to project dir)",
+      "threshold_config": "Path to threshold configuration file (relative to project dir)"
+    },
+    "notes": [
+      "All paths are relative to the project directory unless specified as absolute paths.",
+      "To use absolute paths, provide the full path (e.g., 'C:\\\\Users\\\\...\\\\models').",
+      "The model_dir can be external to the project if needed."
+    ]
+  }
+}

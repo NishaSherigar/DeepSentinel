@@ -1,0 +1,11 @@
+test,description,risk_score,expected,passed
+1,Normal Document Creation (Business Hours),0.7449509629300288,0.1-0.35,False
+2,Executable File Creation (After Hours),0.7725940331299594,0.65-0.9,True
+3,USB Device Plugged (Business Hours),0.7715944777728441,0.5-0.8,True
+4,USB Device Plugged (After Hours),0.7715944777728441,0.75-0.95,True
+5,User Login (Business Hours),0.7569248604060177,0.1-0.35,False
+6,Remote Login (After Hours),0.7569248604060177,0.6-0.85,True
+7,Bulk File Activity (50 files in session),0.7856053649475204,0.5-0.75,False
+8,File Deletion (Sensitive Path),0.7665833209309935,0.35-0.65,False
+9,Weekend Activity (Normal Document),0.7558177189287739,0.2-0.5,False
+10,Multiple Risk Factors (Worst Case),0.7736856499864238,0.8-0.95,False

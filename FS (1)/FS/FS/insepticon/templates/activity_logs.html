@@ -1,0 +1,814 @@
+  <!DOCTYPE html>
+<html>
+<head>
+    <title>User Activity Logs</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0B0F19;
+            color: #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #1a1f2e 0%, #0f1419 100%);
+            border-bottom: 1px solid #1F2937;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #60a5fa;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(-2px);
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Screenshots Button */
+        .screenshots-btn {
+            background: linear-gradient(135deg, #60a5fa, #549af0);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .screenshots-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Screenshots Modal */
+        .screenshots-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .screenshots-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .screenshots-content {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .screenshots-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 31, 46, 0.8);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .screenshots-header h2 {
+            font-size: 1.5rem;
+            color: #E5E7EB;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .screenshots-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .screenshots-close-btn {
+            background: rgba(75, 85, 99, 0.3);
+            border: 1px solid #374151;
+            color: #D1D5DB;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .screenshots-close-btn:hover {
+            background: rgba(75, 85, 99, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .screenshots-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: calc(80vh - 80px);
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .screenshot-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #374151;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .screenshot-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .screenshot-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .screenshot-info {
+            padding: 0.75rem;
+        }
+
+        .screenshot-filename {
+            font-size: 0.9rem;
+            color: #E5E7EB;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .screenshot-timestamp {
+            font-size: 0.8rem;
+            color: #9CA3AF;
+        }
+
+        .no-screenshots {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6B7280;
+        }
+        
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Filter Section */
+        .filters {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #1F2937;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .screenshot-description {
+            font-size: 0.8rem;
+            color: #E5E7EB;
+            margin-bottom: 0.25rem;
+        }
+        
+        .filter-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #60a5fa;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+        
+        .filter-btn.active {
+            background: #60a5fa;
+            color: white;
+        }
+        
+        /* Log Table */
+        .logs-container {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #1F2937;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #1F2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(31, 41, 55, 0.5);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #9CA3AF;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #1F2937;
+            font-size: 0.9rem;
+        }
+        
+        /* Details formatting */
+        td .detail-label {
+            color: #60a5fa;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        td .detail-line {
+            display: block;
+            margin: 0.25rem 0;
+            line-height: 1.5;
+            color: #E5E7EB;
+        }
+        
+        td .detail-section {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Process info styling */
+        .process-info {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+        }
+        
+        tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        /* Badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        
+        .badge-file {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .badge-usb {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .badge-logon {
+            background: rgba(251, 146, 60, 0.15);
+            color: #FB923C;
+            border: 1px solid rgba(251, 146, 60, 0.3);
+        }
+        
+        .badge-process {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-clipboard {
+            background: rgba(139, 92, 246, 0.15);
+            color: #2065ba;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Risk score badges */
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            font-weight: 700;
+        }
+        
+        .risk-high {
+            background: rgba(251, 146, 60, 0.2);
+            color: #FB923C;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+        }
+        
+        .risk-medium {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+        
+        .risk-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1F2937;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4B5563;
+        }
+        
+        /* Refresh Button Animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .refresh-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .refresh-btn.loading .refresh-icon {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6B7280;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Export Button */
+        .export-btn {
+            background: linear-gradient(135deg, #60a5fa, #549af0);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="/dashboard" class="back-btn">
+                <span>←</span>
+                <span>Back to Dashboard</span>
+            </a>
+            <h1>User Activity Logs</h1>
+        </div>
+        <div class="header-right">
+            <button class="export-btn" onclick="exportLogs()">
+                <span>📥</span>
+                <span>Export Logs</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="filters">
+            <button class="filter-btn active" data-type="all">All Events</button>
+            <button class="filter-btn" data-type="file">Files</button>
+            <button class="filter-btn" data-type="usb">USB</button>
+            <button class="filter-btn" data-type="logon">Logons</button>
+            <button class="filter-btn" data-type="process">Processes</button>
+            <button class="filter-btn" data-type="clipboard">Clipboard</button>
+    <button class="screenshots-btn" onclick="showScreenshots()">
+        <span>📸</span>
+        <span>View Screenshots</span>
+    </button>
+        </div>
+        
+        <div class="logs-container">
+            <div class="table-header">
+                <div class="table-title">Recent Activity</div>
+                <div class="table-controls">
+                    <button class="refresh-btn" onclick="refreshLogs()">
+                        <span class="refresh-icon">🔄</span>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Agent</th>
+                        <th>Type</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Risk Score</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    {% if logs %}
+                        {% for log in logs %}
+                        <tr data-type="{{ log.event_type }}">
+                            <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">
+                                {{ log.timestamp }}
+                            </td>
+                            <td style="font-weight: 500;">{{ log.agent_id }}</td>
+                            <td>
+                                <span class="badge badge-{{ log.event_type }}">
+                                    {{ log.event_type.upper() }}
+                                </span>
+                            </td>
+                            <td>{{ log.action }}</td>
+                            <td style="max-width: 400px;">
+                        {% set lines = log.details.split('\n') %}
+                        {% for line in lines %}
+                            {% if ':' in line %}
+                                {% set parts = line.split(':', 1) %}
+                                <div class="detail-line">
+                                    <span class="detail-label">{{ parts[0] }}</span>
+                                    <span class="detail-value">{{ parts[1] }}</span>
+                                </div>
+                            {% else %}
+                                <div class="detail-line">{{ line }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                            <td>
+                                <span class="badge {{ log.risk_class }}">
+                                    {{ "%.3f"|format(log.risk_score) }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📊</div>
+                                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                        No Activity Logs Found
+                                    </div>
+                                    <div>Start monitoring to see user activity here</div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Screenshots Modal -->
+    <div class="screenshots-modal" id="screenshotsModal">
+        <div class="screenshots-content">
+            <div class="screenshots-header">
+                <h2>
+                    <span>📸</span>
+                    <span>Captured Screenshots</span>
+                </h2>
+                <div class="screenshots-controls">
+                    <button class="screenshots-close-btn" onclick="closeScreenshots()">×</button>
+                </div>
+            </div>
+            <div class="screenshots-body">
+                <div class="screenshots-grid" id="screenshotsGrid">
+                    <!-- Screenshots will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+
+        // Filter Functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const logRows = document.querySelectorAll('tr[data-type]');
+        
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update button states
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filter table rows
+                const type = btn.getAttribute('data-type');
+                logRows.forEach(row => {
+                    if (type === 'all' || row.getAttribute('data-type') === type) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Refresh Functionality
+        function refreshLogs(page = currentPage) {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.classList.add('loading');
+
+            fetch(`/api/activity_logs?page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('logsTableBody');
+                    const logs = data.logs || data;
+
+                    if (logs && logs.length > 0) {
+                        tbody.innerHTML = logs.map(log => `
+                            <tr data-type="${log.event_type}">
+                                <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">
+                                    ${log.timestamp}
+                                </td>
+                                <td style="font-weight: 500;">${log.agent_id}</td>
+                                <td>
+                                    <span class="badge badge-${log.event_type}">
+                                        ${log.event_type.toUpperCase()}
+                                    </span>
+                                </td>
+                                <td>${log.action}</td>
+                                <td style="max-width: 400px; color: #9CA3AF;">${log.details}</td>
+                                <td>
+                                    <span class="badge ${log.risk_class}">
+                                        ${log.risk_score.toFixed(3)}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">📊</div>
+                                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                            No Activity Logs Found
+                                        </div>
+                                        <div>Start monitoring to see user activity here</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+
+
+                })
+                .catch(error => {
+                    console.error('Error refreshing logs:', error);
+                })
+                .finally(() => {
+                    refreshBtn.classList.remove('loading');
+                });
+        }
+
+        // Pagination Functions
+        function nextPage() {
+            currentPage++;
+            refreshLogs(currentPage);
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                refreshLogs(currentPage);
+            }
+        }
+
+        // Update Pagination Buttons
+        function updatePaginationButtons(hasNext, hasPrevious) {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.querySelector('.action-btn[onclick="nextPage()"]');
+
+            prevBtn.disabled = !hasPrevious;
+            nextBtn.disabled = !hasNext;
+        }
+        
+        // Export Functionality
+        function exportLogs() {
+            window.location.href = '/export_activity_logs';
+        }
+        
+        // Auto-refresh every 60 seconds
+        setInterval(refreshLogs, 60000);
+
+        // Screenshots Modal Functionality
+        function showScreenshots() {
+            const modal = document.getElementById('screenshotsModal');
+            modal.classList.add('show');
+            loadScreenshots();
+        }
+
+        function closeScreenshots() {
+            const modal = document.getElementById('screenshotsModal');
+            modal.classList.remove('show');
+        }
+
+        function loadScreenshots() {
+            const grid = document.getElementById('screenshotsGrid');
+
+            // Fetch screenshots from the server
+            fetch('/api/screenshots')
+                .then(response => response.json())
+                .then(screenshots => {
+                    if (screenshots && screenshots.length > 0) {
+                        grid.innerHTML = screenshots.map(screenshot => `
+                            <div class="screenshot-item">
+                                <img src="/screenshot/${screenshot.filename}" alt="${screenshot.filename}" class="screenshot-img">
+                                <div class="screenshot-info">
+                                    <div class="screenshot-filename">${screenshot.filename}</div>
+                                    <div class="screenshot-timestamp">${screenshot.timestamp}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = `
+                            <div class="no-screenshots">
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📷</div>
+                                <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                    No Screenshots Found
+                                </div>
+                                <div>Screenshots will appear here when captured</div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading screenshots:', error);
+                    grid.innerHTML = `
+                        <div class="no-screenshots">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                            <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                Error Loading Screenshots
+                            </div>
+                            <div>Please try again later</div>
+                        </div>
+                    `;
+                });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('screenshotsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeScreenshots();
+            }
+        });
+    </script>
+</body>
+</html>

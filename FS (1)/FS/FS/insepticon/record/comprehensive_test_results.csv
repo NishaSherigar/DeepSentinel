@@ -1,0 +1,27 @@
+category,test_id,test_name,risk_score,expected_range,passed,notes
+Edge Cases,EC-001,Empty Event - Minimal Data,0.07770605440439808,0.00-0.20,True,Should return low risk with no threat indicators
+Edge Cases,EC-002,Null/None Values,0.07770605440439808,0.00-0.20,True,Should handle None gracefully
+Edge Cases,EC-003,Maximum Hour Value (23:59),0.45297290276146085,0.50-0.80,False,Should detect late-night activity as risky
+Edge Cases,EC-004,Minimum Hour Value (00:00),0.45292924512860555,0.50-0.80,False,Should detect midnight activity as risky
+Edge Cases,EC-005,Extreme File Size - 1GB attachment,0.45225915767116337,0.60-0.85,False,Should flag massive file transfers as suspicious
+Edge Cases,EC-006,Zero File Operations,0.18964414629114795,0.10-0.30,True,Single file operation should have baseline risk
+Edge Cases,EC-007,Extremely High File Count (10000 files),0.18964618403670574,0.70-0.95,False,Should flag mass file operations
+Edge Cases,EC-008,System Admin Privilege,0.1895314073853174,0.30-0.50,False,Admin operations less suspicious than user operations
+Threat Patterns,TP-001,Data Exfiltration Pattern (Large Email + Sensitive Data),0.8287515479654609,0.80-0.99,True,"Classic data exfiltration attempt (after-hours, external, large file, sensitive)"
+Threat Patterns,TP-002,Insider Threat Pattern (Mass Download + USB),0.7538052972662568,0.75-0.95,True,Insider extracting sensitive files to USB near end of day
+Threat Patterns,TP-003,Privilege Escalation Pattern (Admin + Remote + Off-hours),0.7157341676392005,0.75-0.95,False,Remote admin access at 2 AM - potential lateral movement
+Threat Patterns,TP-004,Malware Propagation Pattern (Many Executables),0.6823599546423337,0.80-0.95,False,Rapid creation of many executable files in system paths
+Threat Patterns,TP-005,Ransomware Pattern (Mass File Deletion),0.41988071624467915,0.80-0.95,False,Massive file deletion pattern consistent with ransomware
+Threat Patterns,TP-006,Supply Chain Attack (Unsigned Executable + External Source),0.46222193296021863,0.60-0.85,False,Unsigned executable creation during business hours
+Threat Patterns,TP-007,Credential Harvesting (Multiple Failed Logins),0.4994745948037604,0.70-0.90,False,Multiple failed login attempts at odd hours - brute force pattern
+Threat Patterns,TP-008,Normal Business Activity (Multiple Low-Risk Factors),0.1997135016580025,0.10-0.30,True,Routine business document creation
+Stress/Performance,ST-001,Rapid Sequential Predictions (100 events),0.019524054527282717,<0.050s,True,Processed 100 events in 1.95s
+Stress/Performance,ST-002,Concurrent Event Predictions (Different event types),0.020660605430603027,<0.050s,True,Processed 50 events in 1.03s
+Stress/Performance,ST-003,Memory Stability Test (1000 predictions),0.01952488374710083,<0.050s,True,Processed 1000 events in 19.52s
+Error Handling,EH-001,Invalid Event Type,0.41698713218314826,Graceful handling,True,Should gracefully handle unknown event types
+Error Handling,EH-002,String Hour Instead of Integer,0.2,Graceful handling,True,Should handle type mismatches gracefully
+Error Handling,EH-003,Negative Hour Value,0.7919871321831482,Graceful handling,True,Should validate and handle invalid hour ranges
+Error Handling,EH-004,Hour Greater than 24,0.7919871321831482,Graceful handling,True,Should normalize or reject out-of-range hours
+Error Handling,EH-005,Negative File Count,0.5294871321831482,Graceful handling,True,Should handle invalid negative counts
+Error Handling,EH-006,Extremely Large Negative File Size,0.5669871321831483,Graceful handling,True,Should handle invalid file size values
+Error Handling,EH-007,Special Characters in String Fields,0.5669871321831483,Graceful handling,True,Should safely process special characters

@@ -1,0 +1,3448 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DeepSentinel</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0B0F19;
+            color: #E5E7EB;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            border-right: 1px solid #1F2937;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid #1F2937;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2065ba, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+        
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #2065ba);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+        
+        .logo-text p {
+            font-size: 0.8rem;
+            color: #6B7280;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        
+        .nav-section {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-title {
+            padding: 0 1.5rem 0.75rem;
+            font-size: 0.7rem;
+            color: #6B7280;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .nav-item {
+            padding: 0.875rem 1.5rem;
+            color: #9CA3AF;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: linear-gradient(180deg, #2065ba, #60a5fa);
+            border-radius: 0 2px 2px 0;
+            transition: height 0.2s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(99, 102, 241, 0.08);
+            color: #2065ba;
+        }
+        
+        .nav-item.active::before {
+            height: 60%;
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #1a1f2e 0%, #0f1419 100%);
+            border-bottom: 1px solid #1F2937;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-left h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10B981;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: #0B0F19;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            border: 1px solid #1F2937;
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #60a5fa, #549af0);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+            border-color: #374151;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #9CA3AF;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #2065ba);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        
+        /* Threshold Control */
+        .threshold-box {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #1F2937;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .threshold-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .threshold-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #E5E7EB;
+        }
+        
+        .threshold-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            background: #1F2937;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #60a5fa, #549af0);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .threshold-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 0.75rem;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #60a5fa, #549af0);
+            color: white;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Event Table */
+        .event-section {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #1F2937;
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeInUp 0.7s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        
+        .section-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid #1F2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(99, 102, 241, 0.03);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(31, 41, 55, 0.5);
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #9CA3AF;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #1F2937;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        tr {
+            transition: all 0.2s;
+        }
+        
+        tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        
+        .badge-file {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .badge-usb {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .badge-logon {
+            background: rgba(251, 146, 60, 0.15);
+            color: #FB923C;
+            border: 1px solid rgba(251, 146, 60, 0.3);
+        }
+        
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            font-weight: 700;
+        }
+        
+        .risk-high {
+            background: rgba(251, 146, 60, 0.2);
+            color: #FB923C;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+        }
+        
+        .risk-medium {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+        
+        .risk-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6B7280;
+        }
+        
+        .no-data-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1F2937;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4B5563;
+        }
+        
+        /* Alert Popup */
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+        
+        .alert-popup-content {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 2px solid #EF4444;
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-width: 350px;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.1);
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% {
+                box-shadow: 0 20px 50px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.1);
+            }
+            50% {
+                box-shadow: 0 20px 50px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(239, 68, 68, 0.3);
+            }
+        }
+        
+        .alert-popup-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: shake 0.5s infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .alert-popup-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #EF4444;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-popup-message {
+            font-size: 0.95rem;
+            color: #D1D5DB;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .alert-popup-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .alert-popup-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .alert-popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .alert-popup-btn-secondary {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(75, 85, 99, 0.3);
+            color: #D1D5DB;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .alert-popup-btn-secondary:hover {
+            background: rgba(75, 85, 99, 0.5);
+            border-color: #4B5563;
+        }
+        
+        /* Event Modal */
+        .event-modal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .event-modal {
+            background: #1a1f2e;
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #E5E7EB;
+        }
+
+        .event-modal h2 {
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .event-modal button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #60a5fa;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* User Modal */
+        .user-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .user-modal-content {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .user-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #374151;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .user-modal-header h3 {
+            margin: 0;
+            color: #E5E7EB;
+            font-size: 1.5rem;
+        }
+
+        .user-modal-close {
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-modal-close:hover {
+            color: #EF4444;
+        }
+
+        .user-modal-body {
+            padding: 2rem;
+            color: #D1D5DB;
+        }
+
+        .risk-factor-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #1F2937;
+        }
+
+        .risk-factor-label {
+            color: #9CA3AF;
+        }
+
+        .risk-factor-value {
+            font-weight: 600;
+            color: #E5E7EB;
+        }
+
+        .risk-meter {
+            width: 100%;
+            height: 8px;
+            background: #1F2937;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .risk-meter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .user-event-list {
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-event-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 3px solid #60a5fa;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #D1D5DB;
+        }
+
+        .user-event-time {
+            color: #9CA3AF;
+            font-size: 0.8rem;
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #374151;
+            padding: 0 2rem;
+        }
+
+        .section-tab {
+            padding: 1rem;
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        .section-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+
+        .section-tab:hover {
+            color: #E5E7EB;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Clickable user row */
+        .user-row:hover {
+            cursor: pointer;
+            background: rgba(99, 102, 241, 0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>DeepSentinel</h1>
+                    <p>AI-Powered SIEM</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" id="nav-alerts" onclick="showPage('alerts')">
+                <span class="nav-icon">⚠️</span>
+                <span>Alerts</span>
+                
+                <span class="nav-badge">888</span>
+                
+            </div>
+            <div class="nav-item" id="nav-analytics" onclick="showPage('analytics')">
+                <span class="nav-icon">📈</span>
+                <span>Analytics</span>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Multi-LAN scope</div>
+            <div style="padding: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <label style="font-size: 0.7rem; color: #6B7280;">Endpoint (agent)</label>
+                <select id="agentFilter" style="width: 100%; padding: 0.5rem; background: #1F2937; color: #E5E7EB; border: 1px solid #3F4655; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    <option value="">🌐 All endpoints</option>
+                </select>
+                <label style="font-size: 0.7rem; color: #6B7280;">User on endpoint</label>
+                <select id="userFilter" style="width: 100%; padding: 0.5rem; background: #1F2937; color: #E5E7EB; border: 1px solid #3F4655; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    <option value="">👥 All users</option>
+                </select>
+                <a href="/agents" style="font-size: 0.8rem; color: #818CF8; text-decoration: none;">→ Connected agents overview</a>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Events</div>
+            <div class="nav-item event-filter-btn active" data-filter="all">
+                <span class="nav-icon">📊</span>
+                <span>All</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="file">
+                <span class="nav-icon">📁</span>
+                <span>Files</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">10229</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="usb">
+                <span class="nav-icon">💾</span>
+                <span>USB Devices</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">17</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="logon">
+                <span class="nav-icon">🔑</span>
+                <span>Logons</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">36</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="clipboard">
+                <span class="nav-icon">📋</span>
+                <span>Clipboard</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">8</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="process">
+                <span class="nav-icon">⚙️</span>
+                <span>Processes</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">3007</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="outlook">
+                <span class="nav-icon">📧</span>
+                <span>Outlook</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">0</span>
+            </div>
+            <div class="nav-item event-filter-btn" data-filter="imap">
+                <span class="nav-icon">✉️</span>
+                <span>IMAP</span>
+                <span style="margin-left: auto; color: #6B7280; font-size: 0.85rem;">0</span>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Analysis</div>
+            <div class="nav-item">
+                <span class="nav-icon">🤖</span>
+                <span>ML Models</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span>User Behavior</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">🔍</span>
+                <span>Threat Hunt</span>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">System</div>
+            <div class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span>Export</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h2>Security Dashboard</h2>
+                <div class="header-subtitle">Real-time user activity monitoring</div>
+            </div>
+            <div class="header-right">
+                <div class="header-status">
+                    <span class="status-dot"></span>
+                    <span style="font-size: 0.9rem; font-weight: 600;">System Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Events</div>
+                    <div class="stat-value" id="stat-total-events">13890</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">File Actions</div>
+                    <div class="stat-value" id="stat-file-events">10229</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">USB Events</div>
+                    <div class="stat-value" id="stat-usb-events">17</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">User Logons</div>
+                    <div class="stat-value" id="stat-logon-events">36</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Critical Alerts</div>
+                    <div class="stat-value" id="stat-high-risk" style="background: linear-gradient(135deg, #EF4444, #F87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">888</div>
+                </div>
+                <a href="/activity_logs" class="stat-card activity-logs-btn" style="text-decoration: none;">
+                    <div class="stat-label">User Activity Logs</div>
+                    <div class="stat-value" style="font-size: 2rem;">📋</div>
+                    <div class="stat-hint">Click to view logs</div>
+                </a>
+                <style>
+                    .activity-logs-btn {
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .activity-logs-btn:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+                    }
+                    .activity-logs-btn:active {
+                        transform: translateY(-2px);
+                    }
+                    .stat-hint {
+                        font-size: 0.8rem;
+                        color: #60a5fa;
+                        margin-top: 0.5rem;
+                    }
+                </style>
+                <script>
+                    // Safe-bind: element may not exist depending on template version
+                    const _activityBtn = document.getElementById('activityLogsBtn');
+                    if (_activityBtn) {
+                        _activityBtn.addEventListener('click', function() {
+                            console.log('Activity Logs button clicked');
+                            showActivityLogs();
+                        });
+                    }
+                </script>
+                <div class="stat-card">
+                    <div class="stat-label">Clipboard Events</div>
+                    <div class="stat-value" id="stat-clipboard-events">8</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Process Events</div>
+                    <div class="stat-value" id="stat-process-events">3007</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Outlook Events</div>
+                    <div class="stat-value" id="stat-outlook-events">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">IMAP Events</div>
+                    <div class="stat-value" id="stat-imap-events">0</div>
+                </div>
+            </div>
+            
+            <!-- Threshold Control -->
+            <div class="threshold-box">
+                <div class="threshold-header">
+                    <div>
+                        <div class="threshold-title">🎯 Risk Threshold</div>
+                        <div style="font-size: 0.875rem; color: #6B7280; margin-top: 0.5rem;">
+                            Events above this threshold trigger critical alerts
+                        </div>
+                    </div>
+                    <div class="threshold-value" id="thresholdValue">0.19</div>
+                </div>
+                <input type="range" min="0" max="100" value="19" 
+                       class="slider" id="thresholdSlider" 
+                       oninput="updateThreshold(this.value)">
+                <div class="threshold-labels">
+                    <span>0.0 - Low</span>
+                    <span>0.5 - Medium</span>
+                    <span>1.0 - High</span>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn" onclick="refreshNow()">🔄 Refresh Now</button>
+                <button class="btn" onclick="exportData()">📥 Export CSV</button>
+                <button class="btn" onclick="clearData()">🗑️ Clear All</button>
+            </div>
+            
+            <!-- Alerts for current scope (multi-LAN / per-user) -->
+            <div class="event-section" style="margin-top: 1rem;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Alerts &amp; high-risk activity</div>
+                        <div class="section-subtitle">Threshold alerts + events above risk threshold • Uses endpoint / user picks in sidebar</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Endpoint</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Detail</th>
+                                <th>Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-alerts-tbody">
+                            <tr>
+                                <td colspan="6" class="no-data">
+                                    <div class="no-data-icon">🔔</div>
+                                    <div style="font-size: 1rem;">No alerts for this scope</div>
+                                    <div style="color: #6B7280; font-size: 0.85rem;">Choose an endpoint or user in the sidebar, or wait for activity.</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem; display:flex; justify-content:flex-end;">
+                <button class="btn" onclick="openScreenshotsModal()">📸 View screenshots</button>
+            </div>
+
+            <!-- Event Table -->
+            <div class="event-section">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Recent User Activity</div>
+                        <div class="section-subtitle">Live monitoring • Auto-refresh: 60s • Filtered by sidebar scope</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Agent</th>
+                                <th>Type</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Risk Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-tbody">
+                            
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="secure_local_log.bin" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">secure_local_log.bin</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="secure_local_log.bin" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">secure_local_log.bin</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="process" data-detail="[Process event]" data-summary="[Process event]">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:31:00</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-process">
+                                            PROCESS
+                                        </span>
+                                    </td>
+                                    <td>process ended</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">[Process event]</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="secure_local_log.bin" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">secure_local_log.bin</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="process" data-detail="[Process event]" data-summary="[Process event]">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:50</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-process">
+                                            PROCESS
+                                        </span>
+                                    </td>
+                                    <td>process ended</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">[Process event]</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="secure_local_log.bin" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">secure_local_log.bin</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="secure_local_log.bin" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">secure_local_log.bin</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="incoming_requests.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">incoming_requests.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl.fixed" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl.fixed</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl.fixed" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl.fixed</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.corrupt.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.corrupt.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.corrupt.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.corrupt.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="counters.json" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">counters.json</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="counters.json" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">counters.json</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="alerts.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">alerts.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="alerts.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">alerts.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761933913.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761933913.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761933913.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:07</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761933913.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="thresholds.json" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">thresholds.json</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="thresholds.json" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">thresholds.json</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="alerts.jsonl.fixed" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">alerts.jsonl.fixed</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="alerts.jsonl.fixed" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">alerts.jsonl.fixed</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761933942.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761933942.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761933942.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761933942.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.bak" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.bak</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761935252.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761935252.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761935252.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761935252.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="logs.jsonl" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">logs.jsonl</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761937894.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761937894.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="screenshot_1761937894.png" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:06</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">screenshot_1761937894.png</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.corrupt.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:05</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.corrupt.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="user_activity.jsonl.corrupt.log" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:05</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">user_activity.jsonl.corrupt.log</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                                <tr data-event-type="file" data-detail="counters.json" data-summary="File file_modified: ">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">2025-11-02 06:30:05</td>
+                                    <td style="font-weight: 600;">DESKTOP-HOST-001</td>
+                                    <td>
+                                        <span class="badge badge-file">
+                                            FILE
+                                        </span>
+                                    </td>
+                                    <td>file modified</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">counters.json</td>
+                                    <td>
+                                        <span class="badge risk-low">
+                                            0.000
+                                        </span>
+                                    </td>
+                                </tr>
+                                
+                            
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- User Risk Leaderboard -->
+            <div class="event-section" style="margin-top: 2rem;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">User Risk Leaderboard</div>
+                        <div class="section-subtitle">Top users by composite risk score</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Risk Score</th>
+                                <th>Risk Level</th>
+                                <th>Risk Factors</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody">
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <div class="no-data-icon">👥</div>
+                                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">No User Risk Data</div>
+                                    <div style="color: #6B7280;">Waiting for activity analysis...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Incidents Management -->
+            <div class="event-section" style="margin-top: 2rem;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Security Incidents</div>
+                        <div class="section-subtitle">Auto-grouped threat events</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Incident Title</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Affected Users</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidents-tbody">
+                            <tr>
+                                <td colspan="6" class="no-data">
+                                    <div class="no-data-icon">🔐</div>
+                                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">No Incidents</div>
+                                    <div style="color: #6B7280;">All systems normal</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audit Trail -->
+            <div class="event-section" style="margin-top: 2rem;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Audit Trail</div>
+                        <div class="section-subtitle">Admin actions and system events</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Admin</th>
+                                <th>Action</th>
+                                <th>Target User</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-tbody">
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <div class="no-data-icon">📋</div>
+                                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">No Audit Records</div>
+                                    <div style="color: #6B7280;">No admin actions yet</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Detail Modal -->
+    <div id="userModal" class="user-modal" style="display: none;">
+        <div class="user-modal-content">
+            <div class="user-modal-header">
+                <h3 id="userModalTitle">User Details</h3>
+                <button class="user-modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="user-modal-body">
+                <div id="userModalBody">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screenshots Modal -->
+    <div id="screenshotsModal" class="user-modal" style="display: none;">
+        <div class="user-modal-content" style="width: min(1200px, 95vw);">
+            <div class="user-modal-header">
+                <h3>Agent Screenshots</h3>
+                <button class="user-modal-close" onclick="closeScreenshotsModal()">&times;</button>
+            </div>
+            <div class="user-modal-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Severity</th>
+                                <th>Preview</th>
+                                <th>Open</th>
+                            </tr>
+                        </thead>
+                        <tbody id="screenshots-modal-tbody">
+                            <tr><td colspan="5" class="no-data">No screenshots yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Page -->
+    <div id="analytics-page" class="page-section" style="display: none; flex: 1; overflow-y: auto;">
+        <div class="content">
+            <div class="header">
+                <div class="header-left">
+                    <h2>📊 Analytics Dashboard</h2>
+                    <div class="header-subtitle">Real-time security metrics and insights</div>
+                </div>
+            </div>
+
+            <div class="content" style="overflow-y: auto;">
+                <!-- Analytics Grid -->
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    
+                    <!-- Live Event Counter -->
+                    <div class="analytics-card">
+                        <div class="analytics-title">Live Event Counter</div>
+                        <div class="analytics-subtitle">Last 60 seconds</div>
+                            <canvas id="canvas-live-counter" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Event Type Breakdown -->
+                        <div class="analytics-card">
+                            <div class="analytics-title">Event Type Breakdown</div>
+                            <div class="analytics-subtitle">Last 5 minutes</div>
+                            <canvas id="canvas-event-types" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Top Active Users -->
+                        <div class="analytics-card">
+                            <div class="analytics-title">Top Active Users</div>
+                            <div class="analytics-subtitle">Last 15 minutes</div>
+                            <canvas id="canvas-top-users" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Events Per Minute -->
+                        <div class="analytics-card">
+                            <div class="analytics-title">Events Per Minute</div>
+                            <div class="analytics-subtitle">Last 10 minutes</div>
+                            <canvas id="canvas-events-per-minute" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Risk Meter Gauge -->
+                        <div class="analytics-card">
+                            <div class="analytics-title">Alert Risk Meter</div>
+                            <div class="analytics-subtitle">Threat score (last 10 min)</div>
+                            <canvas id="canvas-risk-meter" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- USB & File Transfer Heat -->
+                        <div class="analytics-card">
+                            <div class="analytics-title">Data Transfer Activity</div>
+                            <div class="analytics-subtitle">Last 1 hour</div>
+                            <canvas id="canvas-data-transfer" width="300" height="200"></canvas>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics CSS Styles -->
+        <style>
+            .page-section {
+                display: none;
+                flex: 1;
+            }
+
+            .analytics-card {
+                background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+                border: 1px solid #1F2937;
+                border-radius: 16px;
+                padding: 2rem;
+                transition: all 0.3s ease;
+            }
+
+            .analytics-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+                border-color: #374151;
+            }
+
+            .analytics-title {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #E5E7EB;
+                margin-bottom: 0.5rem;
+            }
+
+            .analytics-subtitle {
+                font-size: 0.85rem;
+                color: #6B7280;
+                margin-bottom: 1.5rem;
+            }
+
+            #canvas-live-counter, #canvas-event-types, #canvas-top-users, 
+            #canvas-events-per-minute, #canvas-risk-meter, #canvas-data-transfer {
+                max-height: 250px;
+            }
+        </style>
+    </div>
+    
+    <script>
+        // Page navigation function
+        function showPage(pageName) {
+            // Hide all pages
+            document.getElementById('dashboard-page').style.display = 'none';
+            const analyticsPageDiv = document.querySelector('.page-section');
+            if (analyticsPageDiv) analyticsPageDiv.style.display = 'none';
+
+            // Show selected page
+            if (pageName === 'analytics') {
+                const analyticsPage = document.querySelector('#analytics-page');
+                if (analyticsPage) {
+                    analyticsPage.style.display = 'flex';
+                    initializeAnalyticsCharts();
+                }
+                // Update nav items
+                if (document.getElementById('nav-dashboard')) document.getElementById('nav-dashboard').classList.remove('active');
+                if (document.getElementById('nav-alerts')) document.getElementById('nav-alerts').classList.remove('active');
+                if (document.getElementById('nav-analytics')) document.getElementById('nav-analytics').classList.add('active');
+            } else if (pageName === 'alerts') {
+                // Show alerts page (same as dashboard for now)
+                document.getElementById('dashboard-page').style.display = 'flex';
+                if (document.getElementById('nav-dashboard')) document.getElementById('nav-dashboard').classList.remove('active');
+                if (document.getElementById('nav-alerts')) document.getElementById('nav-alerts').classList.add('active');
+                if (document.getElementById('nav-analytics')) document.getElementById('nav-analytics').classList.remove('active');
+            } else {
+                // Show dashboard
+                document.getElementById('dashboard-page').style.display = 'flex';
+                if (document.getElementById('nav-dashboard')) document.getElementById('nav-dashboard').classList.add('active');
+                if (document.getElementById('nav-alerts')) document.getElementById('nav-alerts').classList.remove('active');
+                if (document.getElementById('nav-analytics')) document.getElementById('nav-analytics').classList.remove('active');
+            }
+        }
+
+        // Analytics Chart Objects
+        let analyticsCharts = {
+            liveCounter: null,
+            eventTypes: null,
+            topUsers: null,
+            eventsPerMinute: null,
+            riskMeter: null,
+            dataTransfer: null
+        };
+
+        // Initialize Analytics Charts
+        function initializeAnalyticsCharts() {
+            // Live Event Counter (Gauge)
+            createLiveCounterChart();
+            
+            // Event Types (Pie)
+            createEventTypesChart();
+            
+            // Top Users (Bar)
+            createTopUsersChart();
+            
+            // Events Per Minute (Line)
+            createEventsPerMinuteChart();
+            
+            // Risk Meter (Gauge)
+            createRiskMeterChart();
+            
+            // Data Transfer (Bar)
+            createDataTransferChart();
+
+            // Auto-refresh intervals
+            setInterval(updateLiveCounterChart, 5000);       // 5 seconds
+            setInterval(updateEventTypesChart, 10000);       // 10 seconds
+            setInterval(updateTopUsersChart, 10000);         // 10 seconds
+            setInterval(updateEventsPerMinuteChart, 10000);  // 10 seconds
+            setInterval(updateRiskMeterChart, 5000);         // 5 seconds
+            setInterval(updateDataTransferChart, 30000);     // 30 seconds
+        }
+
+        // 1. Live Event Counter (Gauge Chart)
+        function createLiveCounterChart() {
+            fetch('/api/analytics/live-stats')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-live-counter');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.liveCounter) {
+                        analyticsCharts.liveCounter.destroy();
+                    }
+
+                    analyticsCharts.liveCounter = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Events', 'Remaining'],
+                            datasets: [{
+                                data: [data.count, Math.max(0, 100 - data.count)],
+                                backgroundColor: ['#60a5fa', '#1F2937'],
+                                borderColor: '#0B0F19',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 12 } }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + ' events';
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        plugins: [{
+                            id: 'textCenter',
+                            afterDatasetsDraw(chart) {
+                                const { width, height, ctx } = chart;
+                                ctx.restore();
+                                const fontSize = (height / 220).toFixed(2);
+                                ctx.font = fontSize + "rem sans-serif";
+                                ctx.textBaseline = "middle";
+                                ctx.fillStyle = '#60a5fa';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(data.count + ' events', width / 2, height / 2);
+                            }
+                        }]
+                    });
+                });
+        }
+
+        function updateLiveCounterChart() {
+            createLiveCounterChart();
+        }
+
+        // 2. Event Types (Pie Chart)
+        function createEventTypesChart() {
+            fetch('/api/analytics/event-types')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-event-types');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.eventTypes) {
+                        analyticsCharts.eventTypes.destroy();
+                    }
+
+                    const types = Object.keys(data.types);
+                    const colors = ['#3B82F6', '#EF4444', '#10B981', '#FCD34D', '#549af0', '#EC4899', '#F97316', '#06B6D4'];
+
+                    analyticsCharts.eventTypes = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: types,
+                            datasets: [{
+                                data: types.map(t => data.types[t]),
+                                backgroundColor: colors.slice(0, types.length),
+                                borderColor: '#0B0F19',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 11 } }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + ' events';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        function updateEventTypesChart() {
+            createEventTypesChart();
+        }
+
+        // 3. Top Active Users (Horizontal Bar Chart)
+        function createTopUsersChart() {
+            fetch('/api/analytics/top-users')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-top-users');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.topUsers) {
+                        analyticsCharts.topUsers.destroy();
+                    }
+
+                    analyticsCharts.topUsers = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.users.map(u => u.username).reverse(),
+                            datasets: [{
+                                label: 'Events',
+                                data: data.users.map(u => u.count).reverse(),
+                                backgroundColor: '#549af0',
+                                borderRadius: 8,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 12 } }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                },
+                                y: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        function updateTopUsersChart() {
+            createTopUsersChart();
+        }
+
+        // 4. Events Per Minute (Line Chart)
+        function createEventsPerMinuteChart() {
+            fetch('/api/analytics/events-per-minute')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-events-per-minute');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.eventsPerMinute) {
+                        analyticsCharts.eventsPerMinute.destroy();
+                    }
+
+                    const labels = data.data.map(d => d.minute.split('T')[1].substring(0, 5)); // HH:MM
+                    const counts = data.data.map(d => d.count);
+
+                    analyticsCharts.eventsPerMinute = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Events Per Minute',
+                                data: counts,
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#10B981',
+                                pointBorderColor: '#0B0F19',
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 12 } }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                },
+                                y: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        function updateEventsPerMinuteChart() {
+            createEventsPerMinuteChart();
+        }
+
+        // 5. Risk Meter (Gauge Chart)
+        function createRiskMeterChart() {
+            fetch('/api/analytics/risk-meter')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-risk-meter');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.riskMeter) {
+                        analyticsCharts.riskMeter.destroy();
+                    }
+
+                    const riskColor = data.color;
+                    const remaining = 100 - data.score;
+
+                    analyticsCharts.riskMeter = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [data.risk_level, 'Safe'],
+                            datasets: [{
+                                data: [data.score, remaining],
+                                backgroundColor: [riskColor, '#1F2937'],
+                                borderColor: '#0B0F19',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 12 } }
+                                }
+                            }
+                        },
+                        plugins: [{
+                            id: 'textCenter',
+                            afterDatasetsDraw(chart) {
+                                const { width, height, ctx } = chart;
+                                ctx.restore();
+                                const fontSize = (height / 220).toFixed(2);
+                                ctx.font = fontSize + "rem sans-serif";
+                                ctx.textBaseline = "middle";
+                                ctx.fillStyle = riskColor;
+                                ctx.textAlign = 'center';
+                                ctx.fillText(data.score + '%', width / 2, height / 2 - 10);
+                                ctx.font = '0.7rem sans-serif';
+                                ctx.fillStyle = '#9CA3AF';
+                                ctx.fillText(data.risk_level, width / 2, height / 2 + 15);
+                            }
+                        }]
+                    });
+                });
+        }
+
+        function updateRiskMeterChart() {
+            createRiskMeterChart();
+        }
+
+        // 6. Data Transfer Heat (Bar Chart)
+        function createDataTransferChart() {
+            fetch('/api/analytics/data-transfer')
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('canvas-data-transfer');
+                    if (!ctx) return;
+
+                    if (analyticsCharts.dataTransfer) {
+                        analyticsCharts.dataTransfer.destroy();
+                    }
+
+                    const types = data.data.map(d => d.type.replace(/_/g, ' '));
+                    const counts = data.data.map(d => d.count);
+                    const colors = data.data.map(d => d.color);
+
+                    analyticsCharts.dataTransfer = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: types,
+                            datasets: [{
+                                label: 'Transfer Events',
+                                data: counts,
+                                backgroundColor: colors,
+                                borderRadius: 8,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'x',
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    labels: { color: '#9CA3AF', font: { size: 12 } }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                },
+                                y: {
+                                    ticks: { color: '#9CA3AF' },
+                                    grid: { color: '#1F2937' }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        function updateDataTransferChart() {
+            createDataTransferChart();
+        }
+
+        // Wrap main content in a div for page navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wrap existing content in dashboard-page div if not already wrapped
+            const contentArea = document.querySelector('.content');
+            if (contentArea && !document.getElementById('dashboard-page')) {
+                const wrapper = document.createElement('div');
+                wrapper.id = 'dashboard-page';
+                wrapper.style.display = 'flex';
+                wrapper.style.flexDirection = 'column';
+                wrapper.style.flex = '1';
+                wrapper.style.overflow = 'hidden';
+                contentArea.parentNode.insertBefore(wrapper, contentArea);
+                wrapper.appendChild(contentArea);
+            }
+        });
+
+        // Track last known alert count
+        let lastAlertCount = 888;
+        
+        // Auto-refresh every 60 seconds
+        setTimeout(() => location.reload(), 60000);
+        
+        // Check for new critical alerts every 10 seconds
+        setInterval(checkForNewAlerts, 10000);
+        
+        function checkForNewAlerts() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.high_risk > lastAlertCount) {
+                        showAlertPopup(data.high_risk - lastAlertCount);
+                        lastAlertCount = data.high_risk;
+                    }
+                })
+                .catch(err => console.error('Failed to check alerts:', err));
+        }
+        
+        function showAlertPopup(newAlertCount) {
+            playAlertSound();
+            
+            const popup = document.createElement('div');
+            popup.className = 'alert-popup';
+            popup.innerHTML = `
+                <div class="alert-popup-content">
+                    <div class="alert-popup-icon">🚨</div>
+                    <div class="alert-popup-title">Critical Alert Detected!</div>
+                    <div class="alert-popup-message">
+                        ${newAlertCount} new high-risk ${newAlertCount === 1 ? 'event' : 'events'} detected
+                    </div>
+                    <div class="alert-popup-actions">
+                        <button class="alert-popup-btn" onclick="location.reload()">View Details</button>
+                        <button class="alert-popup-btn-secondary" onclick="closeAlertPopup(this)">Dismiss</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                if (popup.parentElement) {
+                    closeAlertPopup(popup);
+                }
+            }, 15000);
+        }
+        
+        function closeAlertPopup(element) {
+            const popup = element.closest ? element.closest('.alert-popup') : element;
+            if (popup) {
+                popup.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => popup.remove(), 300);
+            }
+        }
+        
+        function playAlertSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        function updateThreshold(value) {
+            const threshold = (value / 100).toFixed(2);
+            document.getElementById('thresholdValue').textContent = threshold;
+            
+            fetch('/update_threshold', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({threshold: parseFloat(threshold)})
+            });
+        }
+        
+        function exportData() {
+            window.location.href = '/export_csv';
+        }
+        
+        function clearData() {
+            if(confirm('Clear all events? This cannot be undone.')) {
+                fetch('/clear_all', {method: 'POST'})
+                    .then(() => {
+                        // update UI dynamically instead of full reload
+                        updateStatsAndEvents();
+                    });
+            }
+        }
+
+        // New dynamic refresh function
+        function refreshNow() {
+            applyDashboardScope();
+        }
+
+        function scopeQuery() {
+            const uf = (document.getElementById('userFilter') && document.getElementById('userFilter').value) || '';
+            const af = (document.getElementById('agentFilter') && document.getElementById('agentFilter').value) || '';
+            const q = [];
+            if (uf) q.push('user=' + encodeURIComponent(uf));
+            if (af) q.push('agent=' + encodeURIComponent(af));
+            return q.length ? ('?' + q.join('&')) : '';
+        }
+
+        // Fetch stats and events and update the DOM
+        function updateStatsAndEvents() {
+            const qs = scopeQuery();
+            Promise.all([
+                fetch('/api/stats').then(r => r.json()),
+                fetch('/api/events' + qs).then(r => r.json())
+            ]).then(([stats, events]) => {
+                // Update stat elements
+                const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+                setText('stat-total-events', stats.total_events);
+                setText('stat-file-events', stats.file_events);
+                setText('stat-usb-events', stats.usb_events);
+                setText('stat-logon-events', stats.logon_events);
+                setText('stat-clipboard-events', stats.clipboard_events);
+                setText('stat-process-events', stats.process_events);
+                setText('stat-outlook-events', stats.outlook_events);
+                setText('stat-imap-events', stats.imap_events);
+                setText('stat-high-risk', stats.high_risk);
+                setText('stat-avg-risk', (stats.total_events>0? (stats.avg_risk||0).toFixed(2): '0.00'));
+
+                // Rebuild events table body
+                const tbody = document.getElementById('events-tbody');
+                if (tbody) {
+                    if (!events || events.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="no-data-icon">📊</div><div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">No Events Detected</div><div style="color: #6B7280;">Waiting for user activity...</div></td></tr>`;
+                    } else {
+                        tbody.innerHTML = events.map(ev => {
+                            const badgeClass = ev.event_type || 'unknown';
+                            return `
+                                <tr data-event-type="${ev.event_type}" data-detail="${(ev.details||'').replace(/"/g,'&quot;')}" data-summary="${(ev.details||'').replace(/"/g,'&quot;')}">
+                                    <td style="font-family: 'Courier New', monospace; color: #9CA3AF;">${ev.timestamp}</td>
+                                    <td style="font-weight: 600;">${ev.agent_id}</td>
+                                    <td><span class="badge badge-${badgeClass}">${(ev.event_type||'').toUpperCase()}</span></td>
+                                    <td>${(ev.action||'').replace(/_/g,' ')}</td>
+                                    <td style="max-width: 400px; color: #9CA3AF; font-size: 0.85rem;">${ev.details}</td>
+                                    <td><span class="badge ${ev.risk_class}">${(ev.risk_score||0).toFixed(3)}</span></td>
+                                </tr>`;
+                        }).join('\n');
+                    }
+                }
+            }).catch(err => console.error('Failed to refresh stats/events:', err));
+        }
+
+        function loadDashboardAlerts() {
+            fetch('/api/dashboard/alerts' + scopeQuery())
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('dashboard-alerts-tbody');
+                    if (!tbody) return;
+                    const rows = data.alerts || [];
+                    if (rows.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="no-data-icon">🔔</div><div style="font-size: 1rem;">No alerts for this scope</div><div style="color: #6B7280; font-size: 0.85rem;">Pick another user/endpoint or lower the risk threshold.</div></td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = rows.map(a => {
+                        const sev = (a.severity || 'MEDIUM');
+                        let cls = 'risk-medium';
+                        if (sev === 'CRITICAL' || sev === 'HIGH') cls = 'risk-critical';
+                        else if (sev === 'LOW') cls = 'risk-low';
+                        return `<tr>
+                            <td style="font-family: monospace; font-size: 0.8rem; color: #9CA3AF;">${(a.time || '').toString().slice(0, 24)}</td>
+                            <td>${(a.agent_id || '—')}</td>
+                            <td style="font-weight: 600;">${a.user || '—'}</td>
+                            <td><span class="badge badge-unknown">${(a.metric || '').replace(/_/g, ' ')}</span></td>
+                            <td style="max-width: 360px; color: #9CA3AF; font-size: 0.85rem;">${(a.note || '').replace(/</g, '&lt;')}</td>
+                            <td><span class="badge ${cls}">${sev}</span></td>
+                        </tr>`;
+                    }).join('');
+                })
+                .catch(err => console.error('Failed to load dashboard alerts:', err));
+        }
+
+        function loadScreenshotsIntoModal() {
+            fetch('/api/screenshots')
+                .then(r => r.json())
+                .then(items => {
+                    const tbody = document.getElementById('screenshots-modal-tbody');
+                    if (!tbody) return;
+                    const uf = (document.getElementById('userFilter') && document.getElementById('userFilter').value) || '';
+                    const af = (document.getElementById('agentFilter') && document.getElementById('agentFilter').value) || '';
+
+                    let rows = Array.isArray(items) ? items : [];
+                    if (uf) {
+                        rows = rows.filter(x => (x.user || '').toString() === uf);
+                    }
+                    // screenshots API doesn't store agent_id separately; fall back to filename match
+                    if (af) {
+                        rows = rows.filter(x => (x.filename || '').toString().includes(af));
+                    }
+
+                    if (!rows.length) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="no-data"><div class="no-data-icon">📸</div><div style="font-size: 1rem;">No screenshots for this scope</div><div style="color: #6B7280; font-size: 0.85rem;">Trigger a sensitive clipboard/file event on the endpoint.</div></td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = rows.slice(0, 20).map(s => {
+                        const ts = (s.timestamp || '').toString();
+                        const u = s.user || 'unknown';
+                        const sev = s.severity || 'LOW';
+                        const url = s.url || (`/screenshot/${encodeURIComponent(s.filename)}`);
+                        return `<tr>
+                            <td style="font-family: monospace; font-size: 0.8rem; color: #9CA3AF;">${ts.slice(0, 24)}</td>
+                            <td style="font-weight: 600;">${u}</td>
+                            <td><span class="badge ${sev==='CRITICAL'?'risk-critical':sev==='HIGH'?'risk-high':sev==='MEDIUM'?'risk-medium':'risk-low'}">${sev}</span></td>
+                            <td><img src="${url}" style="height:36px;border-radius:6px;border:1px solid #374151" /></td>
+                            <td><a class="btn" style="display:inline-block; padding: 0.3rem 0.8rem; font-size: 0.85rem; text-decoration:none;" href="${url}" target="_blank">Open</a></td>
+                        </tr>`;
+                    }).join('');
+                })
+                .catch(err => console.error('Failed to load screenshots:', err));
+        }
+
+        function openScreenshotsModal() {
+            const modal = document.getElementById('screenshotsModal');
+            if (!modal) return;
+            loadScreenshotsIntoModal();
+            modal.style.display = 'flex';
+        }
+
+        function closeScreenshotsModal() {
+            const modal = document.getElementById('screenshotsModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function applyDashboardScope() {
+            updateStatsAndEvents();
+            loadDashboardAlerts();
+            loadIncidents();
+            loadLeaderboard();
+            loadAuditTrail();
+        }
+
+        // Event filter logic — only the main activity table (#events-tbody)
+        const filterButtons = document.querySelectorAll('.event-filter-btn');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.getAttribute('data-filter');
+                const eventRows = document.querySelectorAll('#events-tbody tr');
+                eventRows.forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-event-type') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Event details modal logic
+        const eventTable = document.querySelector('.event-section tbody');
+        if (eventTable) {
+            eventTable.addEventListener('click', function(evt) {
+                let tr = evt.target.closest('tr');
+                if (tr && tr.getAttribute('data-summary')) {
+                    const summary = tr.getAttribute('data-summary');
+                    const modal = document.createElement('div');
+                    modal.className = 'event-modal-bg';
+                    modal.innerHTML = `
+                        <div class='event-modal'>
+                            <h2>Event Details</h2>
+                            <div style="white-space: pre-wrap; font-family: monospace; background: #0B0F19; padding: 1rem; border-radius: 8px; margin: 1rem 0;">${summary}</div>
+                            <button onclick='this.parentElement.parentElement.remove()'>Close</button>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                }
+            });
+        }
+        // Activity Log Modal
+        function showActivityLogs() {
+            console.log('Showing activity logs...');
+            // Create and show loading indicator
+            const loadingModal = document.createElement('div');
+            loadingModal.className = 'activity-log-modal';
+            loadingModal.innerHTML = `
+                <div class="activity-log-content" style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">📋</div>
+                    <div>Loading activity logs...</div>
+                </div>
+            `;
+            document.body.appendChild(loadingModal);
+
+            // Fetch the logs
+            fetch('/api/activity_logs')
+                .then(response => {
+                    console.log('Response received:', response);
+                    return response.json();
+                })
+                .then(logs => {
+                    console.log('Logs received:', logs);
+                    // Remove loading indicator
+                    loadingModal.remove();
+                    
+                    // Create the actual logs modal
+                    const modal = document.createElement('div');
+                    modal.className = 'activity-log-modal';
+                    modal.innerHTML = `
+                        <div class="activity-log-content">
+                            <div class="activity-log-header">
+                                <h2>📋 User Activity Logs</h2>
+                                <div class="activity-log-controls">
+                                    <button class="refresh-btn" onclick="refreshActivityLogs()">🔄 Refresh</button>
+                                    <button class="close-btn" onclick="closeActivityModal(this)">×</button>
+                                </div>
+                            </div>
+                            <div class="activity-log-body">
+                                ${logs.length > 0 ? logs.map(log => `
+                                    <div class="log-entry ${log.event_type.toLowerCase()}">
+                                        <div class="log-time">${log.timestamp}</div>
+                                        <div class="log-type">${log.event_type}</div>
+                                        <div class="log-details">${formatLogDetails(log)}</div>
+                                    </div>
+                                `).join('') : '<div class="no-logs">No activity logs found</div>'}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+
+                    // Add click handler to close modal when clicking outside
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching logs:', error);
+                    loadingModal.innerHTML = `
+                        <div class="activity-log-content" style="text-align: center; padding: 2rem;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                            <div>Error loading activity logs</div>
+                            <button onclick="this.closest('.activity-log-modal').remove()" style="margin-top: 1rem;">Close</button>
+                        </div>
+                    `;
+                });
+        }
+
+        function formatLogDetails(log) {
+            if (typeof log.details === 'object') {
+                return Object.entries(log.details)
+                    .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                    .join('<br>');
+            }
+            return log.details;
+        }
+
+        function closeActivityModal(button) {
+            const modal = button.closest('.activity-log-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        function refreshActivityLogs() {
+            const currentModal = document.querySelector('.activity-log-modal');
+            if (currentModal) {
+                currentModal.remove();
+            }
+            showActivityLogs();
+        }
+
+        // Load user risk leaderboard
+        function loadLeaderboard() {
+            fetch('/api/users/risk_leaderboard')
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('leaderboard-tbody');
+                    if (!tbody) return;
+                    
+                    const users = data.leaderboard || [];
+                    if (users.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="no-data"><div class="no-data-icon">👥</div><div style="font-size: 1.2rem; font-weight: 600;">No User Risk Data</div><div style="color: #6B7280;">Waiting for activity analysis...</div></td></tr>`;
+                        return;
+                    }
+                    
+                    tbody.innerHTML = users.slice(0, 20).map(user => {
+                        const riskPct = (user.risk_score * 100).toFixed(1);
+                        let riskLevel = 'LOW', riskClass = 'risk-low';
+                        if (user.risk_score >= 0.8) {
+                            riskLevel = 'CRITICAL';
+                            riskClass = 'risk-critical';
+                        } else if (user.risk_score >= 0.6) {
+                            riskLevel = 'HIGH';
+                            riskClass = 'risk-high';
+                        } else if (user.risk_score >= 0.4) {
+                            riskLevel = 'MEDIUM';
+                            riskClass = 'risk-medium';
+                        }
+                        
+                        const factors = user.risk_factors || {};
+                        const factorsList = Object.entries(factors)
+                            .map(([key, val]) => `${key}: ${(val * 100).toFixed(0)}%`)
+                            .join(', ');
+                        
+                        return `
+                            <tr class="user-row" onclick="selectUserForScope('${user.username}', ${JSON.stringify(user).replace(/'/g, '&#39;')})">
+                                <td style="font-weight: 600; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#E5E7EB'">${user.username}</td>
+                                <td><span class="badge ${riskClass}">${riskPct}%</span></td>
+                                <td><span class="badge ${riskClass}">${riskLevel}</span></td>
+                                <td style="font-size: 0.85rem; color: #9CA3AF;">${factorsList || 'N/A'}</td>
+                                <td><button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;" onclick="event.stopPropagation(); selectUserForScope('${user.username}', ${JSON.stringify(user).replace(/'/g, '&#39;')})">👤 View</button></td>
+                            </tr>
+                        `;
+                    }).join('\n');
+                })
+                .catch(err => console.error('Failed to load leaderboard:', err));
+        }
+
+        // Load incidents (includes high-risk rows derived from events)
+        function loadIncidents() {
+            fetch('/incidents' + scopeQuery())
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('incidents-tbody');
+                    if (!tbody) return;
+                    
+                    const incidents = (data.incidents || []);
+                    if (incidents.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="no-data-icon">🔐</div><div style="font-size: 1.2rem; font-weight: 600;">No incidents for this scope</div><div style="color: #6B7280;">Try &quot;All endpoints&quot; / &quot;All users&quot; or generate high-risk events.</div></td></tr>`;
+                        return;
+                    }
+                    
+                    tbody.innerHTML = incidents.slice(0, 50).map(incident => {
+                        let severityClass = 'risk-low';
+                        if (incident.severity === 'CRITICAL') severityClass = 'risk-critical';
+                        else if (incident.severity === 'HIGH') severityClass = 'risk-high';
+                        else if (incident.severity === 'MEDIUM') severityClass = 'risk-medium';
+                        
+                        let statusClass = 'badge';
+                        const st = (incident.status || '').toString().toUpperCase();
+                        if (st === 'OPEN') statusClass += ' risk-critical';
+                        else if (st === 'IN_PROGRESS') statusClass += ' risk-high';
+                        else statusClass += ' risk-low';
+                        const when = incident.timestamp || incident.created_at || 'Unknown';
+                        
+                        return `
+                            <tr>
+                                <td style="font-weight: 600;">${incident.title || 'Untitled Incident'}</td>
+                                <td><span class="badge ${severityClass}">${incident.severity || 'UNKNOWN'}</span></td>
+                                <td><span class="${statusClass}">${st || 'UNKNOWN'}</span></td>
+                                <td style="font-size: 0.85rem;">${(incident.affected_users || []).join(', ') || 'N/A'}</td>
+                                <td style="font-size: 0.85rem; color: #9CA3AF;">${when}</td>
+                                <td><button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;">📋</button></td>
+                            </tr>
+                        `;
+                    }).join('\n');
+                })
+                .catch(err => console.error('Failed to load incidents:', err));
+        }
+
+        // Load audit trail
+        function loadAuditTrail() {
+            const uf = (document.getElementById('userFilter') && document.getElementById('userFilter').value) ? document.getElementById('userFilter').value : '';
+            const qs = uf ? ('?user_id=' + encodeURIComponent(uf)) : '';
+            fetch('/api/audit_log' + qs)
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('audit-tbody');
+                    if (!tbody) return;
+                    
+                    const entries = (data.entries || []).slice(0, 100);
+                    if (entries.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="no-data"><div class="no-data-icon">📋</div><div style="font-size: 1.2rem; font-weight: 600;">No Audit Records</div><div style="color: #6B7280;">No admin actions yet</div></td></tr>`;
+                        return;
+                    }
+                    
+                    tbody.innerHTML = entries.map(entry => {
+                        return `
+                            <tr>
+                                <td style="font-family: 'Courier New', monospace; color: #9CA3AF; font-size: 0.85rem;">${entry.timestamp || 'Unknown'}</td>
+                                <td style="font-weight: 600;">${entry.admin || 'System'}</td>
+                                <td>${entry.action || 'Unknown'}</td>
+                                <td>${entry.target_user || 'N/A'}</td>
+                                <td style="font-size: 0.85rem; color: #9CA3AF; max-width: 300px;">${entry.details || 'N/A'}</td>
+                            </tr>
+                        `;
+                    }).join('\n');
+                })
+                .catch(err => console.error('Failed to load audit trail:', err));
+        }
+
+        function selectUserForScope(username, userDataStr) {
+            const uf = document.getElementById('userFilter');
+            if (uf) uf.value = username;
+            applyDashboardScope();
+            showUserDetails(username, userDataStr);
+        }
+
+        // Show user detail modal
+        function showUserDetails(username, userDataStr) {
+            const userData = typeof userDataStr === 'string' ? JSON.parse(userDataStr) : userDataStr;
+            const modal = document.getElementById('userModal');
+            const title = document.getElementById('userModalTitle');
+            const body = document.getElementById('userModalBody');
+            
+            if (!modal) return;
+            
+            title.textContent = `User Details: ${username}`;
+            
+            const riskScore = userData.risk_score || 0;
+            const riskPct = (riskScore * 100).toFixed(1);
+            const factors = userData.risk_factors || {};
+            
+            let riskLevel = 'LOW', riskColor = '#10B981';
+            if (riskScore >= 0.8) {
+                riskLevel = 'CRITICAL';
+                riskColor = '#EF4444';
+            } else if (riskScore >= 0.6) {
+                riskLevel = 'HIGH';
+                riskColor = '#FB923C';
+            } else if (riskScore >= 0.4) {
+                riskLevel = 'MEDIUM';
+                riskColor = '#FBBF24';
+            }
+            
+            const meterColor = riskColor;
+            const meterWidth = (riskScore * 100).toFixed(1) + '%';
+            
+            body.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: #E5E7EB;">Risk Score: <span style="color: ${riskColor};">${riskPct}%</span></div>
+                    <div style="font-size: 0.9rem; color: #9CA3AF; margin-bottom: 1rem;">Risk Level: <span style="color: ${riskColor}; font-weight: 600;">${riskLevel}</span></div>
+                    <div class="risk-meter">
+                        <div class="risk-meter-fill" style="width: ${meterWidth}; background-color: ${meterColor};"></div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+                    <div style="font-weight: 600; margin-bottom: 1rem; color: #E5E7EB;">Risk Factor Breakdown</div>
+                    ${Object.entries(factors).map(([key, val]) => {
+                        const factorPct = (val * 100).toFixed(1);
+                        return `
+                            <div class="risk-factor-item">
+                                <span class="risk-factor-label">${key.replace(/_/g, ' ')}</span>
+                                <span class="risk-factor-value">${factorPct}%</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div style="text-align: center; color: #6B7280; font-size: 0.9rem;">
+                    <p>Click "Close" to view this user's events, incidents, and audit actions.</p>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('userModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close user modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('userModal');
+            if (modal && event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Populate endpoint + user dropdowns from activity
+        function loadScopeFilters() {
+            fetch('/api/users')
+                .then(r => r.json())
+                .then(data => {
+                    const userSel = document.getElementById('userFilter');
+                    const agentSel = document.getElementById('agentFilter');
+                    if (!userSel || !agentSel) return;
+                    
+                    const users = data.users || [];
+                    const agents = data.agents || [];
+                    
+                    while (userSel.options.length > 1) userSel.remove(1);
+                    while (agentSel.options.length > 1) agentSel.remove(1);
+                    
+                    agents.forEach(aid => {
+                        const o = document.createElement('option');
+                        o.value = aid;
+                        o.textContent = '🖥 ' + aid;
+                        agentSel.appendChild(o);
+                    });
+                    
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user;
+                        // Display only the actual username part (DOMAIN\user → user)
+                        const label = (user || '').toString().includes('\\') ? (user.toString().split('\\').slice(-1)[0]) : user;
+                        option.textContent = '👤 ' + label;
+                        userSel.appendChild(option);
+                    });
+                })
+                .catch(err => console.error('Failed to load scope filters:', err));
+        }
+
+        function setupScopeHandlers() {
+            const userFilter = document.getElementById('userFilter');
+            const agentFilter = document.getElementById('agentFilter');
+            const onChange = () => applyDashboardScope();
+            if (userFilter) userFilter.addEventListener('change', onChange);
+            if (agentFilter) agentFilter.addEventListener('change', onChange);
+        }
+
+        // Initialize - load data on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, initializing dashboard...');
+            loadScopeFilters();
+            setupScopeHandlers();
+            applyDashboardScope();
+        });
+
+        // Refresh scoped data every 30 seconds
+        setInterval(function() {
+            applyDashboardScope();
+        }, 30000);
+    </script>
+    <style>
+        /* Activity Log Modal Styles */
+        .activity-log-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .activity-log-content {
+            background: linear-gradient(135deg, #1a1f2e, #0f1419);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .activity-log-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 31, 46, 0.8);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .activity-log-header h2 {
+            font-size: 1.5rem;
+            color: #E5E7EB;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-log-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #60a5fa, #549af0);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .close-btn {
+            background: rgba(75, 85, 99, 0.3);
+            border: 1px solid #374151;
+            color: #D1D5DB;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(75, 85, 99, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .activity-log-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: calc(80vh - 80px);
+        }
+
+        .log-entry {
+            display: grid;
+            grid-template-columns: 180px 100px 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .log-time {
+            font-family: 'Courier New', monospace;
+            color: #9CA3AF;
+        }
+
+        .log-type {
+            font-weight: 600;
+        }
+
+        .log-details {
+            color: #D1D5DB;
+        }
+
+        /* Log type colors */
+        .log-entry.file .log-type { color: #60A5FA; }
+        .log-entry.process .log-type { color: #34D399; }
+        .log-entry.usb .log-type { color: #F59E0B; }
+        .log-entry.security .log-type { color: #EF4444; }
+        .log-entry.clipboard .log-type { color: #549af0; }
+    </style>
+</body>
+</html>
