@@ -228,8 +228,3 @@ Analytics:
 ## Security Notice
 
 DeepSentinel is a monitoring and response prototype. Use it only on systems where you have permission to monitor activity. Logon/logoff monitoring may require Administrator access because it reads Windows Security Event Logs. Some response actions, such as blocking or isolation, can affect normal user activity and should be tested in a controlled environment first.
-
-
-
-Add your preferred license before publishing, for example MIT, Apache-2.0, or a private academic-use notice.
-
